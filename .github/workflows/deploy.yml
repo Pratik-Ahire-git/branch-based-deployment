@@ -18,9 +18,9 @@ jobs:
       if: github.ref == 'refs/heads/staging'
       uses: appleboy/ssh-action@v1.0.3
       with:
-        host: ${{ secrets.STAGING_HOST }}
-        username: ${{ secrets.STAGING_USER }}
-        key: ${{ secrets.STAGING_SSH_KEY }}
+        host: ${{ secrets.STAGING_EC2_HOST }}
+        username: ${{ secrets.STAGING_EC2_USER }}
+        key: ${{ secrets.STAGING_EC2_KEY }}
         script: |
           cd /home/ubuntu/branch-based-deployment
           git pull origin staging
@@ -31,9 +31,9 @@ jobs:
       if: github.ref == 'refs/heads/main'
       uses: appleboy/ssh-action@v1.0.3
       with:
-        host: ${{ secrets.PROD_HOST }}
-        username: ${{ secrets.PROD_USER }}
-        key: ${{ secrets.PROD_SSH_KEY }}
+        host: ${{ secrets.PROD_EC2_HOST }}
+        username: ${{ secrets.PROD_EC2_USER }}
+        key: ${{ secrets.PROD_EC2_KEY }}
         script: |
           cd /home/ubuntu/branch-based-deployment
           git pull origin main
