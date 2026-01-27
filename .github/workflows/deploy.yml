@@ -1,0 +1,80 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - main
+      - staging
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Determine environment
+        id: env
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "ENVIRONMENT=production" >> $GITHUB_OUTPUT
+            echo "EC2_HOST=${{ secrets.PROD_EC2_HOST }}" >> $GITHUB_OUTPUT
+            echo "EC2_USER=${{ secrets.PROD_EC2_USER }}" >> $GITHUB_OUTPUT
+            echo "EC2_KEY=${{ secrets.PROD_EC2_KEY }}" >> $GITHUB_OUTPUT
+            echo "BRANCH=main" >> $GITHUB_OUTPUT
+          else
+            echo "ENVIRONMENT=staging" >> $GITHUB_OUTPUT
+            echo "EC2_HOST=${{ secrets.STAGING_EC2_HOST }}" >> $GITHUB_OUTPUT
+            echo "EC2_USER=${{ secrets.STAGING_EC2_USER }}" >> $GITHUB_OUTPUT
+            echo "EC2_KEY=${{ secrets.STAGING_EC2_KEY }}" >> $GITHUB_OUTPUT
+            echo "BRANCH=staging" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ steps.env.outputs.EC2_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ steps.env.outputs.EC2_HOST }} >> ~/.ssh/known_hosts
+      
+      - name: Deploy to ${{ steps.env.outputs.ENVIRONMENT }}
+        run: |
+          ssh -i ~/.ssh/id_rsa ${{ steps.env.outputs.EC2_USER }}@${{ steps.env.outputs.EC2_HOST }} << 'EOF'
+          set -e
+          
+          # Navigate to application directory
+          cd /home/${{ steps.env.outputs.EC2_USER }}/app
+          
+          # Pull the latest code from the correct branch
+          git fetch origin
+          git checkout ${{ steps.env.outputs.BRANCH }}
+          git pull origin ${{ steps.env.outputs.BRANCH }}
+          
+          # Install dependencies
+          npm install
+          
+          # Stop any existing process
+          pm2 delete app || true
+          
+          # Start the application with the branch name as environment variable
+          BRANCH_NAME=${{ steps.env.outputs.BRANCH }} pm2 start server.js --name app
+          
+          # Save PM2 process list
+          pm2 save
+          
+          echo "✅ Deployment successful to ${{ steps.env.outputs.ENVIRONMENT }}"
+          EOF
+      
+      - name: Verify health endpoint
+        run: |
+          sleep 5
+          curl -f http://${{ steps.env.outputs.EC2_HOST }}:3000/health || exit 1
+          echo "✅ Health check passed"
+      
+      - name: Log deployment
+        if: always()
+        run: echo "Deployment to ${{ steps.env.outputs.ENVIRONMENT }} completed for branch ${{ steps.env.outputs.BRANCH }}"
