@@ -25,7 +25,7 @@ jobs:
           cd /home/ubuntu/branch-based-deployment
           git pull origin staging
           npm install
-          pm2 restart node-app || pm2 start index.js --name node-app
+          pm2 restart node-app || pm2 start server.js --name node-app
 
     - name: Deploy to Production EC2
       if: github.ref == 'refs/heads/main'
@@ -38,4 +38,4 @@ jobs:
           cd /home/ubuntu/branch-based-deployment
           git pull origin main
           npm install
-          pm2 restart node-app || pm2 start index.js --name node-app
+          pm2 restart node-app || pm2 start server.js --name node-app
