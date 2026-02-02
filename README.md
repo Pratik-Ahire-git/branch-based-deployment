@@ -62,35 +62,23 @@ Your Node.js app (Express.js) is now running on the EC2 instance and ready to se
 
 ##  Deployment Status & Screenshots
 
-### Staging Deployment - GitHub Actions
-![Staging Deployment](Images/Staging%20Deployment.png)
+### GitHub Actions Workflow Run
+![GitHub Actions Deployment](<INSERT_IMAGE_URL>)
 - Status: ✅ Successful
-- Automatically triggers on push to `staging` branch
-- Deploys to Staging EC2 instance
+- Job: Deploy to Staging/Production EC2
+- Steps: Checkout → Deploy → Verify
 
-### Production Deployment - GitHub Actions
-![Production Deployment](Images/Production%20Deployment.png)
-- Status: ✅ Successful
-- Automatically triggers on push to `main` branch
-- Deploys to Production EC2 instance
-
-### EC2 Instances Running
-![EC2 Instances](Images/EC2%20.png)
-- Staging Instance: Running ✅
-- Production Instance: Running ✅
+### EC2 Instances
+![AWS EC2 Console](<INSERT_IMAGE_URL>)
+- Staging Instance: Running
+- Production Instance: Running
 - Security Groups: SSH (22), HTTP (80), Custom (3000)
 
-### Staging Application - Live Response
-![Staging EC2 Page](Images/Staging%20EC2%20Page.png)
-- Branch: `staging`
-- Environment: Staging
-- Health: ✅ Healthy
-
-### Production Application - Live Response
-![Production EC2 Page](Images/Production%20EC2%20Page.png)
-- Branch: `main`
-- Environment: Production
-- Health: ✅ Healthy
+### Live Application
+![Server Running](<INSERT_IMAGE_URL>)
+- Health Check: `/health` endpoint ✅
+- Version Endpoint: `/version` endpoint ✅
+- Response: JSON with branch info
 
 ---
 
@@ -211,3 +199,4 @@ branch-based-deployment/
 
 **Status: ✅ Fully Operational and Production-Ready**
 
+Add the changes in main for test
