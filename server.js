@@ -9,7 +9,7 @@ const APP_VERSION = '1.0.0';
 // Health endpoint
 app.get('/health', (req, res) => {
   res.status(200).json({
-    status: 'healthy',
+    status: 'hello world',
     timestamp: new Date().toISOString()
   });
 });
